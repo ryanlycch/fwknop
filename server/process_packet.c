@@ -89,8 +89,7 @@ process_packet(PROCESS_PKT_ARGS_TYPE *args, PACKET_HEADER_META,
     */
     fr_end = (unsigned char *) packet + packet_header->caplen;
 #else
-    /* This is coming from NFQ and we get the packet lentgh as an arg.
-    */
+    /* For non-libpcap callers we get the packet length as an argument. */
     if (from_nfq)
     {
         /* NFQ payload starts at the IP header (no L2/Ethernet header). */
@@ -123,9 +122,7 @@ process_packet(PROCESS_PKT_ARGS_TYPE *args, PACKET_HEADER_META,
          * IP header.
          */
         assume_cooked = 1;
-        /* offset is left as provided by opts->data_link_offset, which is
-         * expected to be 0 for NFQ.
-         */
+        offset        = 0;   /* NFQ payload is L3-only (IP header at packet[0]). */
     }
     else
     {
