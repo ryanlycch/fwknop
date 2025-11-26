@@ -70,7 +70,6 @@ static int process_nfq_packet(struct nfq_q_handle *qh,
         */
         pkt_len = nfq_get_payload(nfa, &full_packet);
 
-        opts->from_nfq = 1;
         process_packet(opts, pkt_len, full_packet);
 
         /* Verdict on what to do with the packet.  If it is coming from
@@ -102,6 +101,8 @@ nfq_capture(fko_srv_options_t *opts)
     struct nfq_handle   *nfq_h;
     struct nfq_q_handle *nfq_qh;
     struct nfnl_handle  *nfq_nh;
+
+    opts->no_ether_header = 1;
 
     nfq_h = nfq_open();
     if (!nfq_h) {
@@ -279,6 +280,7 @@ nfq_capture(fko_srv_options_t *opts)
 
     nfq_destroy_queue(nfq_qh);
     nfq_close(nfq_h);
+    opts->no_ether_header = 0;
 
     return(0);
 }

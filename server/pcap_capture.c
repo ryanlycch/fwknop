@@ -227,8 +227,6 @@ pcap_capture(fko_srv_options_t *opts)
             pending_break = 1;
         }
 
-        opts->from_nfq = 0;
-
         res = pcap_dispatch(pcap, opts->pcap_dispatch_count,
             (pcap_handler)&process_packet, (unsigned char *)opts);
 

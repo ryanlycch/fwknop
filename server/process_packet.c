@@ -71,11 +71,11 @@ process_packet(PROCESS_PKT_ARGS_TYPE *args, PACKET_HEADER_META,
 
     int                 offset = opts->data_link_offset;
 
-    /* from_nfq is set by the capture layer (pcap vs. NFQ). When non-zero,
+    /* no_ether_header is set by the capture layer (pcap vs. NFQ). When non-zero,
      * packets are expected to start at the IP header instead of an
      * Ethernet header.
      */
-    int                 from_nfq = opts->from_nfq;
+    unsigned char       no_ether_header = opts->no_ether_header;
 
 #if USE_LIBPCAP
     unsigned short      pkt_len = packet_header->len;
@@ -90,23 +90,21 @@ process_packet(PROCESS_PKT_ARGS_TYPE *args, PACKET_HEADER_META,
     fr_end = (unsigned char *) packet + packet_header->caplen;
 #else
     /* For non-libpcap callers we get the packet length as an argument. */
-    if (from_nfq)
+    if (no_ether_header)
     {
         /* NFQ payload starts at the IP header (no L2/Ethernet header). */
         if (pkt_len < sizeof(struct iphdr))
             return;
-
-        fr_end = (unsigned char *) packet + pkt_len;
     }
     else
     {
         /* Non-NFQ, non-libpcap callers still expect an Ethernet header. */
         if (pkt_len < ETHER_HDR_LEN)
             return;
-
-        fr_end = (unsigned char *) packet + pkt_len;
     }
+    fr_end = (unsigned char *) packet + pkt_len;
 #endif
+
 
     /* This is a hack to determine if we are using the linux cooked
      * interface.  We base it on the offset being 16 which is the
@@ -115,7 +113,7 @@ process_packet(PROCESS_PKT_ARGS_TYPE *args, PACKET_HEADER_META,
     */
     unsigned char       assume_cooked;
 
-    if (from_nfq)
+    if (no_ether_header)
     {
         /* For NFQ captures we treat the frame as "cooked" and skip all
          * Ethernet/802.3/802.1q parsing below; the buffer starts at the

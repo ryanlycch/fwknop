@@ -681,8 +681,6 @@ typedef struct fko_srv_options
     int  hmac_key_len;
     int  hmac_type;
 
-    int  from_nfq;    /* 0 = normal (pcap/other), 1 = NFQ capture */
-
 #if USE_FILE_CACHE
     struct digest_cache_list *digest_cache;   /* In-memory digest cache list */
 #endif
@@ -731,6 +729,8 @@ typedef struct fko_srv_options
 
     /* Set to 1 when messages have to go through syslog, 0 otherwise */
     unsigned char   syslog_enable;
+
+    unsigned char   no_ether_header;    /* 0 = normal (pcap/other), 1 = NFQ capture */
 
 } fko_srv_options_t;
 
